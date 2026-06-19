@@ -1,0 +1,14 @@
+[package]
+name = "jq"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+opt-level = 3
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-minimal-protocol = { git = "https://github.com/typst-community/wasm-minimal-protocol" }
+jaq-all = { version = "0.2.0", features = ["formats"] }
