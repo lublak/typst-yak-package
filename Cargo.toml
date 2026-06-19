@@ -12,3 +12,5 @@ crate-type = ["cdylib"]
 [dependencies]
 wasm-minimal-protocol = { git = "https://github.com/typst-community/wasm-minimal-protocol" }
 jaq-all = { version = "0.2.0", features = ["formats"] }
+ciborium-ll = "0.2.2"
+ciborium-io = "0.2.2"

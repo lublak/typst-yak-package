@@ -1,3 +1,4 @@
+use ciborium_io::Write as _;
 use jaq_all::{data, fmts, load};
 use wasm_minimal_protocol::*;
 
@@ -18,9 +19,10 @@ fn jq(data: &[u8], filter: &[u8]) -> Result<Vec<u8>, String> {
     let runner = Default::default();
     let vars = Default::default();
 
-    let mut result = Vec::new();
+    let mut data = Vec::new();
+    let mut size = 0;
 
-    let _ = data::run(
+    data::run(
         &runner,
         &filter,
         vars,
@@ -28,9 +30,18 @@ fn jq(data: &[u8], filter: &[u8]) -> Result<Vec<u8>, String> {
         |e| e,
         |v| {
             let v = jaq_all::jaq_core::unwrap_valr(v).map_err(|e| e.to_string())?;
-            fmts::write::cbor::write(&mut result, &v).map_err(|e| e.to_string())
+            size = size + 1;
+            fmts::write::cbor::write(&mut data, &v).map_err(|e| e.to_string())
         },
     )?;
+
+    let mut result = Vec::new();
+    let mut encoder = ciborium_ll::Encoder::from(&mut result);
+    encoder
+        .push(ciborium_ll::Header::Array(Some(size)))
+        .map_err(|e| e.to_string())?;
+    encoder.write_all(&data).map_err(|e| e.to_string())?;
+    encoder.flush().map_err(|e| e.to_string())?;
 
     Ok(result)
 }
